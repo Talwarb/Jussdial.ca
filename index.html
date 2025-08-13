@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brampton Business Directory</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+  header { background: #0078d7; color: white; padding: 1rem; text-align: center; }
+  .container { max-width: 900px; margin: auto; padding: 1rem; }
+  input { width: 100%; padding: 0.5rem; margin-bottom: 1rem; font-size: 1rem; }
+  .card { background: white; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .card h2 { margin: 0; }
+  .card p { margin: 0.5rem 0; }
+  a { color: #0078d7; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .sponsored { border: 2px solid gold; }
+  .ad-block { text-align:center; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Brampton Business Directory</h1>
+  <p>Find businesses in Brampton, Ontario</p>
+</header>
+
+<div class="container">
+  <input type="text" id="search" placeholder="Search businesses...">
+
+  <div class="card sponsored">
+    <h2>Bramgate Automotive Inc. ⭐ Sponsored</h2>
+    <p>268 Queen Street East, Brampton, ON L6V 1B9</p>
+    <p><a href="tel:+19054596040" onclick="trackClick('Bramgate Automotive Inc.', 'phone')">📞 (905) 459-6040</a></p>
+    <p><a href="https://www.google.com/maps?q=Bramgate+Automotive+Inc.,+268+Queen+Street+East,+Brampton,+ON+L6V+1B9" target="_blank" onclick="trackClick('Bramgate Automotive Inc.', 'map')">📍 View on Map</a></p>
+    <p><a href="https://www.bramgateauto.com" target="_blank" onclick="trackClick('Bramgate Automotive Inc.', 'website')">🌐 Website</a></p>
+  </div>
+
+  <div class="card">
+    <h2>Blue Giant Equipment Corporation</h2>
+    <p>85 Heartlake Road South, Brampton, ON L6W 3K2</p>
+    <p><a href="tel:+19054573900" onclick="trackClick('Blue Giant Equipment Corporation', 'phone')">📞 (905) 457-3900</a></p>
+    <p><a href="https://www.google.com/maps?q=Blue+Giant+Equipment+Corporation,+85+Heartlake+Road+South,+Brampton,+ON+L6W+3K2" target="_blank" onclick="trackClick('Blue Giant Equipment Corporation', 'map')">📍 View on Map</a></p>
+    <p><a href="https://www.bluegiant.com" target="_blank" onclick="trackClick('Blue Giant Equipment Corporation', 'website')">🌐 Website</a></p>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('search').addEventListener('input', function () {
+    let filter = this.value.toLowerCase();
+    document.querySelectorAll('.card').forEach(card => {
+      let text = card.innerText.toLowerCase();
+      card.style.display = text.includes(filter) ? '' : 'none';
+    });
+  });
+
+  function trackClick(businessName, type) {
+    console.log(`User clicked ${type} for ${businessName}`);
+  }
+</script>
+</body>
+</html>
