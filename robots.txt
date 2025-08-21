@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://www.jussdial.ca/sitemap.xml
