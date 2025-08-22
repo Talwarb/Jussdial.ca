@@ -5,106 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Restaurants in Brampton - JussDial</title>
 <meta name="description" content="Browse restaurants and eateries in Brampton with JussDial.">
-<meta name="robots" content="index, follow">
-<link rel="stylesheet" href="css/style.css">
-
-<!-- Leaflet CSS for map -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-  #map { height: 500px; margin-bottom: 20px; }
-  .card { cursor: pointer; }
+  body { font-family: Arial, sans-serif; margin:0; }
+  .container { display: flex; flex-wrap: wrap; }
+  .sidebar { width: 30%; max-height: 90vh; overflow-y: auto; padding:10px; border-right:1px solid #ccc; }
+  .card { padding:10px; border:1px solid #ddd; margin-bottom:10px; cursor:pointer; border-radius:5px; }
+  .card:hover { background:#f0f0f0; }
+  .map-container { width: 70%; height:90vh; }
+  #map { height:100%; }
+  #searchInput { width:100%; padding:5px; margin-bottom:10px; font-size:16px; }
+  a { text-decoration:none; color:blue; }
 </style>
 </head>
 <body>
-<header>
+
+<header style="padding:10px; text-align:center;">
   <h1>Restaurants in Brampton</h1>
-  <p class="small">Casual dining, takeout, cafes & more</p>
+  <p>Click a marker or card to see details. Use search to filter.</p>
 </header>
 
-<nav>
-  <a href="index.html">Home</a>
-  <a href="shops-Brampton.html">Shops</a>
-  <a href="services-Brampton.html">Services</a>
-  <a href="automotive-Brampton.html">Automotive</a>
-  <a href="health-Brampton.html">Health &amp; Wellness</a>
-  <a href="restaurants-Brampton.html">Restaurants</a>
-</nav>
-
 <div class="container">
-  <input id="searchInput" class="search" type="text" placeholder="Search restaurants...">
-
-  <!-- Map -->
-  <h2>Map of Restaurants</h2>
-  <div id="map"></div>
-
-  <!-- Restaurant cards -->
-  <div class="card business-item"><h3>Tandoori Flame</h3><p>📍 8150 Dixie Rd, Brampton, ON</p><p>📞 <a href="tel:1905451-1686"> (905) 451-1686</a></p><p>🌐 <a href="https://www.tandooriflame.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Bombay Palace</h3><p>📍 200 Advance Blvd, Brampton, ON</p><p>📞 <a href="tel:1905799-9777">(905) 799-9777</a></p><p>🌐 <a href="https://www.bombaypalace.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Osmow’s Shawarma</h3><p>📍 25 Peel Centre Dr, Brampton, ON</p><p>📞 <a href="tel:19054556666">(905) 455-6666</a></p><p>🌐 <a href="https://osmows.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Burrito Boyz</h3><p>📍 210 Queen St E, Brampton, ON</p><p>📞 <a href="tel:19054556789">(905) 455-6789</a></p><p>🌐 <a href="https://burritoboyz.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Tim Hortons</h3><p>📍 374 Main St N, Brampton, ON</p><p>📞 <a href="tel:19054550000">(905) 455-0000</a></p><p>🌐 <a href="https://www.timhortons.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>McDonald’s</h3><p>📍 45 Mountainash Rd, Brampton, ON</p><p>📞 <a href="tel:19054551212">(905) 455-1212</a></p><p>🌐 <a href="https://www.mcdonalds.com/ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Popeyes Louisiana Kitchen</h3><p>📍 80 Great Lakes Dr, Brampton, ON</p><p>📞 <a href="tel:1647707-5819">(647) 707-5819</a></p><p>🌐 <a href="https://www.popeyeschicken.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Pizza Pizza</h3><p>📍 10 Gillingham Dr, Brampton, ON</p><p>📞 <a href="tel:18663366666">(866) 336-6666</a></p><p>🌐 <a href="https://www.pizzapizza.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Domino’s Pizza</h3><p>📍 499 Main St S, Brampton, ON</p><p>📞 <a href="tel:19055952222">(905) 595-2222</a></p><p>🌐 <a href="https://www.dominos.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Kelseys Original Roadhouse</h3><p>📍 70 Quarry Edge Dr, Brampton, ON</p><p>📞 <a href="tel:19057961700">(905) 796-1700</a></p><p>🌐 <a href="https://www.kelseys.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Boston Pizza</h3><p>📍 65 Resolution Dr, Brampton, ON</p><p>📞 <a href="tel:19054558500">(905) 455-8500</a></p><p>🌐 <a href="https://bostonpizza.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Montana’s BBQ & Bar</h3><p>📍 9065 Airport Rd, Brampton, ON</p><p>📞 <a href="tel:19057996129">(905) 799-6129</a></p><p>🌐 <a href="https://www.montanas.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Tandoori Flame</h3><p>📍 8150 Dixie Rd, Brampton, ON</p><p>📞 <a href="tel:1905451-1686"> (905) 451-1686</a></p><p>🌐 <a href="https://www.tandooriflame.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Bombay Palace</h3><p>📍 200 Advance Blvd, Brampton, ON</p><p>📞 <a href="tel:1905799-9777">(905) 799-9777</a></p><p>🌐 <a href="https://www.bombaypalace.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Osmow’s Shawarma</h3><p>📍 25 Peel Centre Dr, Brampton, ON</p><p>📞 <a href="tel:19054556666">(905) 455-6666</a></p><p>🌐 <a href="https://osmows.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Burrito Boyz</h3><p>📍 210 Queen St E, Brampton, ON</p><p>📞 <a href="tel:19054556789">(905) 455-6789</a></p><p>🌐 <a href="https://burritoboyz.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Tim Hortons</h3><p>📍 374 Main St N, Brampton, ON</p><p>📞 <a href="tel:19054550000">(905) 455-0000</a></p><p>🌐 <a href="https://www.timhortons.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>McDonald’s</h3><p>📍 45 Mountainash Rd, Brampton, ON</p><p>📞 <a href="tel:19054551212">(905) 455-1212</a></p><p>🌐 <a href="https://www.mcdonalds.com/ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Popeyes Louisiana Kitchen</h3><p>📍 80 Great Lakes Dr, Brampton, ON</p><p>📞 <a href="tel:1647707-5819">(647) 707-5819</a></p><p>🌐 <a href="https://www.popeyeschicken.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Pizza Pizza</h3><p>📍 10 Gillingham Dr, Brampton, ON</p><p>📞 <a href="tel:18663366666">(866) 336-6666</a></p><p>🌐 <a href="https://www.pizzapizza.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Domino’s Pizza</h3><p>📍 499 Main St S, Brampton, ON</p><p>📞 <a href="tel:19055952222">(905) 595-2222</a></p><p>🌐 <a href="https://www.dominos.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Kelseys Original Roadhouse</h3><p>📍 70 Quarry Edge Dr, Brampton, ON</p><p>📞 <a href="tel:19057961700">(905) 796-1700</a></p><p>🌐 <a href="https://www.kelseys.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Boston Pizza</h3><p>📍 65 Resolution Dr, Brampton, ON</p><p>📞 <a href="tel:19054558500">(905) 455-8500</a></p><p>🌐 <a href="https://bostonpizza.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Montana’s BBQ & Bar</h3><p>📍 9065 Airport Rd, Brampton, ON</p><p>📞 <a href="tel:19057996129">(905) 799-6129</a></p><p>🌐 <a href="https://www.montanas.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Turtle Jack’s</h3><p>📍 20 Great Lakes Dr, Brampton, ON</p><p>📞 <a href="tel:1905896161">(905) 789-6161</a></p><p>🌐 <a href="https://www.turtlejacks.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Freshii</h3><p>📍 60 Resolution Dr, Brampton, ON</p><p>📞 <a href="tel:12899482789">(289) 948-2789</a></p><p>🌐 <a href="https://www.freshii.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Mayura Fine Indian Cuisine</h3><p>📍 200 County Ct Blvd, Brampton, ON</p><p>📞 <a href="tel:19054598200">(905) 459-8200</a></p><p>🌐 <a href="https://mayurabrampton.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Sunset Grill</h3><p>📍 60 Resolution Dr, Brampton, ON</p><p>📞 <a href="tel:19054528945">(905) 452-8945</a></p><p>🌐 <a href="https://sunsetgrill.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>7 Spice Bistro</h3><p>📍 30 Gillingham Dr, Brampton, ON L6X 4P8</p><p>📞 <a href="tel:+19054567878">(905) 456-7878</a></p><p>🌐 <a href="https://7spicebistro.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Mirch Masala</h3><p>📍 263 Queen St E, Unit 19, Brampton, ON L6W 4K6</p><p>📞 <a href="tel:+19052167322">(905) 216-7322</a></p><p>🌐 <a href="https://www.mirchmasalabrampton.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Tadka King</h3><p>📍 35 Main St N, Brampton, ON L6X 1M8</p> <p>📞 <a href="tel:+19052300102">(905) 230-0102</a></p><p>🌐 <a href="https://tadkaking.ca" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Tikka Junction</h3><p>📍 295A Queen St E, Unit 26, Brampton, ON L6W 3R1</p><p>📞 <a href="tel:+16474294040">(647) 429-4040</a></p><p>🌐 <a href="https://tikkajunctioncanada.com" target="_blank" rel="noopener">Website</a></p></div>
-  <div class="card business-item"><h3>Charminar Indian Cuisine</h3><p>📍 10525 Bramalea Rd, Brampton, ON L6R 3P4</p><p>📞 <a href="tel:+19057993444">(905) 799-3444</a></p><p>🌐 <a href="https://charminarindiancuisine.com/brampton" target="_blank" rel="noopener">Website</a></p></div>
-
+  <div class="sidebar">
+    <input id="searchInput" type="text" placeholder="Search restaurants...">
+    <div id="cardList"></div>
+  </div>
+  <div class="map-container">
+    <div id="map"></div>
+  </div>
 </div>
 
-<div class="footer">&copy; 2025 JussDial.ca</div>
-
-<!-- Your search JS -->
-<script src="js/search.js"></script>
-
-<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-  // Initialize map centered at Brampton
   var map = L.map('map').setView([43.7315, -79.7624], 13);
-
-  // Add OSM tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  // Store markers by restaurant name
-  var markers = {};
+  var markers = [];
+  var cardList = document.getElementById('cardList');
+  var userLat = null, userLon = null;
 
-  // Create a lookup from card info
-  var cardInfo = {};
-  document.querySelectorAll('.card.business-item').forEach(card => {
-    var name = card.querySelector('h3').textContent.trim();
-    var address = card.querySelector('p:nth-of-type(1)').textContent.trim();
-    var phone = card.querySelector('p:nth-of-type(2)').innerHTML.trim();
-    var website = card.querySelector('p:nth-of-type(3)').innerHTML.trim();
-    cardInfo[name.toLowerCase()] = { name, address, phone, website };
-  });
+  // Try to get user location
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(position){
+      userLat = position.coords.latitude;
+      userLon = position.coords.longitude;
+    });
+  }
 
-  // Overpass API query to get restaurants in Brampton
+  // Overpass API query for restaurants in Brampton
   var overpassQuery = `
     [out:json][timeout:25];
     area["name"="Brampton"]->.searchArea;
@@ -116,76 +66,74 @@
     out center;
   `;
 
-  // Fetch restaurants from Overpass API
   fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(overpassQuery))
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
       data.elements.forEach(el => {
         var lat = el.lat || el.center?.lat;
         var lon = el.lon || el.center?.lon;
-        var name = el.tags?.name || 'Unnamed Restaurant';
-        if (lat && lon) {
-          // Get details from card info if available
-          var details = cardInfo[name.toLowerCase()];
-          var popupContent;
-          if (details) {
-            popupContent = `
-              <strong>${details.name}</strong><br>
-              ${details.address}<br>
-              ${details.phone}<br>
-              ${details.website}
-            `;
-          } else {
-            popupContent = `<strong>${name}</strong>`;
-          }
+        if(!lat || !lon) return;
 
-          var marker = L.marker([lat, lon]).addTo(map)
-            .bindPopup(popupContent);
-          markers[name.toLowerCase()] = marker;
+        var tags = el.tags || {};
+        var name = tags.name || "Unnamed Restaurant";
+        var address = '';
+        if(tags['addr:housenumber'] || tags['addr:street'] || tags['addr:city']) {
+          address = `📍 ${tags['addr:housenumber']||''} ${tags['addr:street']||''}, ${tags['addr:city']||''}`.trim();
         }
-      });
+        var phone = tags.phone ? `📞 ${tags.phone}` : '';
+        var website = tags.website ? `🌐 <a href="${tags.website}" target="_blank">${tags.website}</a>` : '';
 
-      // Link cards to map markers
-      document.querySelectorAll('.card.business-item h3').forEach(card => {
-        card.addEventListener('click', () => {
-          var restaurantName = card.textContent.toLowerCase();
-          var marker = markers[restaurantName];
-          if (marker) {
-            map.setView(marker.getLatLng(), 17);
-            marker.openPopup();
-          }
+        // Directions link using user location if available
+        var directionsLink = userLat && userLon ? 
+          `<br><a href="https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${lat},${lon}" target="_blank">Get Directions</a>` :
+          `<br><a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Get Directions</a>`;
+
+        // Add marker
+        var marker = L.marker([lat, lon]).addTo(map)
+          .bindPopup(`<strong>${name}</strong><br>${address}<br>${phone}<br>${website}${directionsLink}`);
+        marker.restaurantName = name.toLowerCase();
+        markers.push(marker);
+
+        // Add sidebar card
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<strong>${name}</strong><br>${address}<br>${phone}<br>${website}${directionsLink}`;
+        card.restaurantName = name.toLowerCase();
+        card.addEventListener('click', function() {
+          map.setView([lat, lon], 17);
+          marker.openPopup();
+        });
+        cardList.appendChild(card);
+
+        // Highlight card when marker clicked
+        marker.on('click', function() {
+          var allCards = document.querySelectorAll('.card');
+          allCards.forEach(c=>c.style.background='white');
+          card.style.background='#e0f7fa';
         });
       });
     })
     .catch(err => console.error(err));
 
-  // Search input: filter cards and markers
+  // Search input to filter markers and cards
   var searchInput = document.getElementById('searchInput');
   searchInput.addEventListener('input', function() {
     var query = this.value.toLowerCase();
-    var firstMatchMarker = null;
-
-    document.querySelectorAll('.card.business-item').forEach(card => {
-      var name = card.querySelector('h3').textContent.toLowerCase();
-      var match = name.includes(query);
-      card.style.display = match ? 'block' : 'none';
-
-      // Show/hide corresponding marker
-      var marker = markers[name];
-      if (marker) {
-        if (match) {
-          marker.addTo(map);
-          if (!firstMatchMarker) firstMatchMarker = marker;
-        } else {
-          map.removeLayer(marker);
-        }
+    var firstMatch = null;
+    markers.forEach((marker, index) => {
+      var card = cardList.children[index];
+      if(marker.restaurantName.includes(query)) {
+        marker.addTo(map);
+        card.style.display='block';
+        if(!firstMatch) firstMatch = marker;
+      } else {
+        map.removeLayer(marker);
+        card.style.display='none';
       }
     });
-
-    // Zoom to first matching marker if any
-    if (firstMatchMarker) {
-      map.setView(firstMatchMarker.getLatLng(), 17);
-      firstMatchMarker.openPopup();
+    if(firstMatch) {
+      map.setView(firstMatch.getLatLng(),17);
+      firstMatch.openPopup();
     }
   });
 </script>
