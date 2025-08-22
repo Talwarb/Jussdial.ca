@@ -1,27 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Restaurants in Brampton - JussDial</title>
-<meta name="description" content="Browse restaurants and eateries in Brampton with JussDial.">
-<meta name="robots" content="index, follow">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<style>
-  body { font-family: Arial, sans-serif; margin:0; }
-  .container { display: flex; flex-wrap: wrap; }
-  .sidebar { width: 30%; max-height: 90vh; overflow-y: auto; padding:10px; border-right:1px solid #ccc; }
-  .card { padding:10px; border:1px solid #ddd; margin-bottom:10px; cursor:pointer; border-radius:5px; }
-  .card:hover { background:#f0f0f0; }
-  .map-container { width: 70%; height:90vh; }
-  #map { height:100%; }
-  #searchInput { width:100%; padding:5px; margin-bottom:10px; font-size:16px; }
-  a { text-decoration:none; color:blue; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurants in Brampton - JussDial</title>
+  <meta name="description" content="Browse restaurants and eateries in Brampton with JussDial.">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f0f2f5; }
+    header {
+      padding: 15px;
+      text-align:center;
+      background:#007bff;
+      color:white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    header h1 { margin:0; font-size:24px; }
+    header p { margin:5px 0 0 0; font-size:14px; }
+    .container {
+      display: flex;
+      height: calc(100vh - 80px);
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 30%;
+      background: #fff;
+      padding: 15px;
+      overflow-y: auto;
+      border-right: 1px solid #ccc;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .card {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafafa;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .card:hover { background: #e0f7fa; transform: translateY(-2px); }
+    .card.active { background: #b2ebf2; }
+    .card-thumb {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .card-content { flex:1; }
+    .map-container {
+      width: 70%;
+      height: 100%;
+    }
+    #map { height: 100%; width: 100%; }
+    a { text-decoration:none; color:#007bff; }
+    a:hover { text-decoration: underline; }
+    .sidebar::-webkit-scrollbar { width: 8px; }
+    .sidebar::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    @media(max-width: 768px){
+      .container { flex-direction: column; height: auto; }
+      .sidebar { width: 100%; max-height: 300px; border-right: none; border-bottom:1px solid #ccc; }
+      .map-container { width: 100%; height: 70vh; }
+    }
+  </style>
 </head>
 <body>
 
-<header style="padding:10px; text-align:center;">
+<header>
   <h1>Restaurants in Brampton</h1>
   <p>Click a marker or card to see details. Use search to filter.</p>
 </header>
@@ -38,25 +95,23 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-  var map = L.map('map').setView([43.7315, -79.7624], 13);
+  const map = L.map('map').setView([43.7315, -79.7624], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
-  var markers = [];
-  var cardList = document.getElementById('cardList');
-  var userLat = null, userLon = null;
+  const markers = [];
+  const cardList = document.getElementById('cardList');
+  let userLat = null, userLon = null;
 
-  // Try to get user location
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(function(position){
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
       userLat = position.coords.latitude;
       userLon = position.coords.longitude;
     });
   }
 
-  // Overpass API query for restaurants in Brampton
-  var overpassQuery = `
+  const overpassQuery = `
     [out:json][timeout:25];
     area["name"="Brampton"]->.searchArea;
     (
@@ -68,72 +123,118 @@
   `;
 
   fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(overpassQuery))
-    .then(r => r.json())
+    .then(response => response.json())
     .then(data => {
       data.elements.forEach(el => {
-        var lat = el.lat || el.center?.lat;
-        var lon = el.lon || el.center?.lon;
-        if(!lat || !lon) return;
+        const lat = el.lat || el.center?.lat;
+        const lon = el.lon || el.center?.lon;
+        if (!lat || !lon) return;
 
-        var tags = el.tags || {};
-        var name = tags.name || "Unnamed Restaurant";
-        var address = '';
-        if(tags['addr:housenumber'] || tags['addr:street'] || tags['addr:city']) {
-          address = `📍 ${tags['addr:housenumber']||''} ${tags['addr:street']||''}, ${tags['addr:city']||''}`.trim();
-        }
-        var phone = tags.phone ? `📞 ${tags.phone}` : '';
-        var website = tags.website ? `🌐 <a href="${tags.website}" target="_blank">${tags.website}</a>` : '';
+        const tags = el.tags || {};
+        const name = tags.name || "Unnamed Restaurant";
+        const address = tags['addr:housenumber'] || tags['addr:street'] || tags['addr:city'] ? 
+                        `📍 ${tags['addr:housenumber'] || ''} ${tags['addr:street'] || ''}, ${tags['addr:city'] || ''}`.trim() : '';
+        const phone = tags.phone ? `📞 ${tags.phone}` : '';
+        const website = tags.website ? `🌐 <a href="${tags.website}" target="_blank">${tags.website}</a>` : '';
 
-        // Directions link using user location if available
-        var directionsLink = userLat && userLon ? 
+        const directionsLink = userLat && userLon ? 
           `<br><a href="https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLon}&destination=${lat},${lon}" target="_blank">Get Directions</a>` :
           `<br><a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Get Directions</a>`;
 
-        // Add marker
-        var marker = L.marker([lat, lon]).addTo(map)
-          .bindPopup(`<strong>${name}</strong><br>${address}<br>${phone}<br>${website}${directionsLink}`);
-        marker.restaurantName = name.toLowerCase();
-        markers.push(marker);
+        const placeName = encodeURIComponent(name);
+        const apiKey = 'YOUR_GOOGLE_API_KEY';
+        const placeSearchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${placeName}&key=${apiKey}`;
 
-        // Add sidebar card
-        var card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<strong>${name}</strong><br>${address}<br>${phone}<br>${website}${directionsLink}`;
-        card.restaurantName = name.toLowerCase();
-        card.addEventListener('click', function() {
-          map.setView([lat, lon], 17);
-          marker.openPopup();
-        });
-        cardList.appendChild(card);
+        fetch(placeSearchUrl)
+          .then(response => response.json())
+          .then(data => {
+            const placeId = data.results[0]?.place_id;
+            const photoUrl = placeId ? 
+              `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${data.results[0].photos[0].photo_reference}&key=${apiKey}` :
+              'https://via.placeholder.com/60?text=🍴';
 
-        // Highlight card when marker clicked
-        marker.on('click', function() {
-          var allCards = document.querySelectorAll('.card');
-          allCards.forEach(c=>c.style.background='white');
-          card.style.background='#e0f7fa';
-        });
+            const marker = L.marker([lat, lon]).addTo(map)
+              .bindPopup(`<strong>${name}</strong><br>${address}<br>${phone}<br>${website}${directionsLink}`);
+            marker.restaurantName = name.toLowerCase();
+            markers.push(marker);
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <img class="card-thumb" src="${photoUrl}" alt="Restaurant">
+              <div class="card-content">
+                <strong>${name}</strong><br>
+                ${address}<br>
+                ${phone}<br>
+                ${website}${directionsLink}
+              </div>
+            `;
+            card.restaurantName = name.toLowerCase();
+            card.addEventListener('click', function() {
+              map.setView([lat, lon], 17);
+              marker.openPopup();
+              document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+              card.classList.add('active');
+            });
+            cardList.appendChild(card);
+
+            marker.on('click', function() {
+              document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+              card.classList.add('active');
+            });
+          })
+          .catch(() => {
+            const marker = L.marker([lat, lon]).addTo(map)
+              .bindPopup(`<strong>${name}</strong><br>${address}<br>${phone}<br>${website}${directionsLink}`);
+            marker.restaurantName = name.toLowerCase();
+            markers.push(marker);
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+              <img class="card-thumb" src="https://via.placeholder.com/60?text=🍴" alt="Restaurant">
+              <div class="card-content">
+                <strong>${name}</strong><br>
+                ${address}<br>
+                ${phone}<br>
+                ${website}${directionsLink}
+              </div>
+            `;
+            card.restaurantName = name.toLowerCase();
+            card.addEventListener('click', function() {
+              map.setView([lat, lon], 17);
+              marker.openPopup();
+              document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+              card.classList.add('active');
+            });
+            cardList.appendChild(card);
+
+            marker.on('click', function() {
+              document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+              card.classList.add('active');
+            });
+          });
       });
     })
     .catch(err => console.error(err));
 
-  // Search input to filter markers and cards
-  var searchInput = document.getElementById('searchInput');
+  const searchInput = document.getElementById('searchInput');
   searchInput.addEventListener('input', function() {
-    var query = this.value.toLowerCase();
-    var firstMatch = null;
+    const query = this.value.toLowerCase();
+    let firstMatch = null;
     markers.forEach((marker, index) => {
-      var card = cardList.children[index];
-      if(marker.restaurantName.includes(query)) {
+      const card = cardList.children[index];
+      if (marker.restaurantName.includes(query)) {
         marker.addTo(map);
-        card.style.display='block';
-        if(!firstMatch) firstMatch = marker;
+        card.style.display = 'flex';
+        if (!firstMatch) firstMatch = marker;
       } else {
         map.removeLayer(marker);
-        card.style.display='none';
+        card.style.display = 'none';
       }
     });
-    if(firstMatch) {
-      map.setView(firstMatch.getLatLng(),17);
+    if (firstMatch) {
+      map.setView(firstMatch.getLatLng(), 17);
       firstMatch.openPopup();
     }
   });
