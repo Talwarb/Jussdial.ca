@@ -5,14 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Restaurants in Brampton - JussDial</title>
 <meta name="description" content="Browse restaurants and eateries in Brampton with JussDial.">
-  <meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow">
 <link rel="stylesheet" href="css/style.css">
+
+<!-- Leaflet CSS for map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  /* Map container style */
+  #map { height: 500px; margin-bottom: 20px; }
+  .card { cursor: pointer; }
+</style>
 </head>
 <body>
 <header>
   <h1>Restaurants in Brampton</h1>
   <p class="small">Casual dining, takeout, cafes & more</p>
 </header>
+
 <nav>
   <a href="index.html">Home</a>
   <a href="shops-Brampton.html">Shops</a>
@@ -25,7 +34,18 @@
 <div class="container">
   <input id="searchInput" class="search" type="text" placeholder="Search restaurants...">
 
+  <!-- Map -->
+  <h2>Map of Restaurants</h2>
+  <div id="map"></div>
+
+  <!-- Restaurant cards -->
   <div class="card business-item"><h3>Tandoori Flame</h3><p>📍 8150 Dixie Rd, Brampton, ON</p><p>📞 <a href="tel:1905451-1686"> (905) 451-1686</a></p><p>🌐 <a href="https://www.tandooriflame.com" target="_blank" rel="noopener">Website</a></p></div>
+  <div class="card business-item"><h3>Bombay Palace</h3><p>📍 200 Advance Blvd, Brampton, ON</p><p>📞 <a href="tel:1905799-9777">(905) 799-9777</a></p><p>🌐 <a href="https://www.bombaypalace.ca" target="_blank" rel="noopener">Website</a></p></div>
+  <div class="card business-item"><h3>Osmow’s Shawarma</h3><p>📍 25 Peel Centre Dr, Brampton, ON</p><p>📞 <a href="tel:19054556666">(905) 455-6666</a></p><p>🌐 <a href="https://osmows.com" target="_blank" rel="noopener">Website</a></p></div>
+  <div class="card business-item"><h3>Burrito Boyz</h3><p>📍 210 Queen St E, Brampton, ON</p><p>📞 <a href="tel:19054556789">(905) 455-6789</a></p><p>🌐 <a href="https://burritoboyz.ca" target="_blank" rel="noopener">Website</a></p></div>
+  <div class="card business-item"><h3>Tim Hortons</h3><p>📍 374 Main St N, Brampton, ON</p><p>📞 <a href="tel:19054550000">(905) 455-0000</a></p><p>🌐 <a href="https://www.timhortons.ca" target="_blank" rel="noopener">Website</a></p></div>
+  <div class="card business-item"><h3>McDonald’s</h3><p>📍 45 Mountainash Rd, Brampton, ON</p><p>📞 <a href="tel:19054551212">(905) 455-1212</a></p><p>🌐 <a href="https://www.mcdonalds.com/ca" target="_blank" rel="noopener">Website</a></p></div>
+ <div class="card business-item"><h3>Tandoori Flame</h3><p>📍 8150 Dixie Rd, Brampton, ON</p><p>📞 <a href="tel:1905451-1686"> (905) 451-1686</a></p><p>🌐 <a href="https://www.tandooriflame.com" target="_blank" rel="noopener">Website</a></p></div>
   <div class="card business-item"><h3>Bombay Palace</h3><p>📍 200 Advance Blvd, Brampton, ON</p><p>📞 <a href="tel:1905799-9777">(905) 799-9777</a></p><p>🌐 <a href="https://www.bombaypalace.ca" target="_blank" rel="noopener">Website</a></p></div>
   <div class="card business-item"><h3>Osmow’s Shawarma</h3><p>📍 25 Peel Centre Dr, Brampton, ON</p><p>📞 <a href="tel:19054556666">(905) 455-6666</a></p><p>🌐 <a href="https://osmows.com" target="_blank" rel="noopener">Website</a></p></div>
   <div class="card business-item"><h3>Burrito Boyz</h3><p>📍 210 Queen St E, Brampton, ON</p><p>📞 <a href="tel:19054556789">(905) 455-6789</a></p><p>🌐 <a href="https://burritoboyz.ca" target="_blank" rel="noopener">Website</a></p></div>
@@ -48,7 +68,68 @@
   <div class="card business-item"><h3>Charminar Indian Cuisine</h3><p>📍 10525 Bramalea Rd, Brampton, ON L6R 3P4</p><p>📞 <a href="tel:+19057993444">(905) 799-3444</a></p><p>🌐 <a href="https://charminarindiancuisine.com/brampton" target="_blank" rel="noopener">Website</a></p></div>
 
 </div>
+
 <div class="footer">&copy; 2025 JussDial.ca</div>
+
+<!-- Your search JS -->
 <script src="js/search.js"></script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  // Initialize map centered at Brampton
+  var map = L.map('map').setView([43.7315, -79.7624], 13);
+
+  // Add OSM tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Store markers by restaurant name
+  var markers = {};
+
+  // Overpass API query to get restaurants in Brampton
+  var overpassQuery = `
+    [out:json][timeout:25];
+    area["name"="Brampton"]->.searchArea;
+    (
+      node["amenity"="restaurant"](area.searchArea);
+      way["amenity"="restaurant"](area.searchArea);
+      relation["amenity"="restaurant"](area.searchArea);
+    );
+    out center;
+  `;
+
+  // Fetch restaurants from Overpass API
+  fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(overpassQuery))
+    .then(response => response.json())
+    .then(data => {
+      data.elements.forEach(el => {
+        var lat = el.lat || el.center?.lat;
+        var lon = el.lon || el.center?.lon;
+        var name = el.tags?.name || 'Unnamed Restaurant';
+        if (lat && lon) {
+          var marker = L.marker([lat, lon]).addTo(map)
+            .bindPopup(name);
+          markers[name.toLowerCase()] = marker;
+        }
+      });
+
+      // Link cards to map markers
+      document.querySelectorAll('.card.business-item h3').forEach(card => {
+        card.addEventListener('click', () => {
+          var restaurantName = card.textContent.toLowerCase();
+          var marker = markers[restaurantName];
+          if (marker) {
+            map.setView(marker.getLatLng(), 17);
+            marker.openPopup();
+          }
+        });
+      });
+    })
+    .catch(err => console.error(err));
+</script>
+
 </body>
 </html>
